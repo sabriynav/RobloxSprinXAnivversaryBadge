@@ -1,0 +1,41 @@
+-- // BadgeHandler.lua (Script - ServerScriptService)
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local BadgeService = game:GetService("BadgeService")
+
+-- Cria ou recupera o RemoteEvent
+local remoteName = "GiveBadge"
+local GiveBadge = ReplicatedStorage:FindFirstChild(remoteName)
+
+if not GiveBadge then
+	GiveBadge = Instance.new("RemoteEvent")
+	GiveBadge.Name = remoteName
+	GiveBadge.Parent = ReplicatedStorage
+end
+
+-- ID da badge que será dada
+local BADGE_ID = 3021496327518809-- Substitua pelo ID da sua badge
+
+GiveBadge.OnServerEvent:Connect(function(player)
+	local success, result = pcall(function()
+		return BadgeService:AwardBadge(player.UserId, BADGE_ID)
+	end)
+
+	if success and result then
+		print("✅ Badge concedida a:", player.Name)
+	elseif not success then
+		warn("⚠️ Erro ao conceder badge:", result)
+	end
+end)
+
+
+-- // BadgeRequester.lua (LocalScript - StarterPlayerScripts)
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Aguarda o RemoteEvent ser criado no servidor
+local GiveBadge = ReplicatedStorage:WaitForChild("GiveBadge")
+
+-- Exemplo: chama após 3 segundos
+task.wait(3)
+GiveBadge:FireServer()
